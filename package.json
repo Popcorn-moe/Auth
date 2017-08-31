@@ -1,0 +1,36 @@
+{
+  "name": "popcorn.moe-auth",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "babel-node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Popcorn-moe/Popcorn.moe-Auth.git"
+  },
+  "author": "Popcorn-moe",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Popcorn-moe/Popcorn.moe-Auth/issues"
+  },
+  "homepage": "https://github.com/Popcorn-moe/Popcorn.moe-Auth#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.0"
+  },
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "cookie-parser": "^1.4.3",
+    "cors": "^2.8.4",
+    "express": "^4.15.4",
+    "jsonwebtoken": "^7.4.3",
+    "passport": "^0.4.0",
+    "passport-discord": "^0.1.2",
+    "passport-local": "^1.0.0",
+    "passport-oauth2": "^1.4.0",
+    "passport-strategy": "^1.0.0",
+    "uuid": "^3.1.0"
+  }
+}
