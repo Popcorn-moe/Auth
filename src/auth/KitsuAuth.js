@@ -2,7 +2,7 @@ import { Strategy } from 'passport-oauth2'
 import { callbackify } from './utils'
 
 export default class KitsuAuth extends Strategy {
-    constructor(clientID, clientSecret, callbackURL) {
+    constructor(db, clientID, clientSecret, callbackURL) {
         super({
             authorizationURL: 'https://kitsu.io/api/oauth/authorize',
             tokenURL: 'https://kitsu.io/api/oauth/token',

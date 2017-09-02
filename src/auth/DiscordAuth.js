@@ -2,7 +2,7 @@ import { Strategy } from 'passport-discord'
 import { callbackify } from './utils'
 
 export default class DiscordAuth extends Strategy {
-    constructor(clientID, clientSecret, callbackURL) {
+    constructor(db, clientID, clientSecret, callbackURL) {
         super({
             clientID,
             clientSecret,

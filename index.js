@@ -3,7 +3,9 @@ import cookieParser from 'cookie-parser'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import passport from './src/passport'
+import { MongoClient } from 'mongodb'
 
+const url = 'mongodb://localhost:27017/popcornmoe_backend'
 const app = express()
 
 app.use(cookieParser())
@@ -13,6 +15,10 @@ app.use(cors({
   credentials: true
 }))
 
-passport(app)
+MongoClient.connect(url).then(db =>{
+  console.log('Connected on mongodb')
+  passport(app, db.collection('users'))
+})
+
 
 app.listen(3031, () => console.log('Listening on 3031'))

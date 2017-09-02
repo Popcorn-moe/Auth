@@ -1,18 +1,19 @@
 import passport from 'passport'
 import jwt from 'jsonwebtoken'
 import uuid from 'uuid/v4'
+import { hash } from 'bcrypt'
 import { SSOExchangeAuth, LocalAuth, KitsuAuth, DiscordAuth } from './auth'
 
-const SPECIAL_PROVIDERS = ['local', 'ssoExchange']
+const SPECIAL_PROVIDERS = ['local', 'ssoExchange', 'signup']
 const ssoExchange = new SSOExchangeAuth()
 
-export default function(app) {
+export default function(app, db) {
     app.use(passport.initialize())
 
     passport.use(ssoExchange)
-    passport.use(new LocalAuth())
-    passport.use(new DiscordAuth(process.env.DISCORD_CLIENT_ID, process.env.DISCORD_CLIENT_SECRET, getCallback('discord')))
-    passport.use(new KitsuAuth('dd031b32d2f56c990b1425efe6c42ad847e7fe3ab46bf1299f05ecd856bdb7dd',
+    passport.use(new LocalAuth(db))
+    passport.use(new DiscordAuth(db, process.env.DISCORD_CLIENT_ID, process.env.DISCORD_CLIENT_SECRET, getCallback('discord')))
+    passport.use(new KitsuAuth(db, 'dd031b32d2f56c990b1425efe6c42ad847e7fe3ab46bf1299f05ecd856bdb7dd',
             '54d7307928f63414defd96399fc31ba847961ceaecef3a5fd93144e960c0e151'))
    
     const PROVIDERS = Object.keys(passport._strategies).filter(p => !SPECIAL_PROVIDERS.includes(p) && p !== 'session')
@@ -22,6 +23,25 @@ export default function(app) {
     passport.serializeUser((user, cb) => cb(null, user))
 
     app.post('/login', passport.authenticate('local'), redirect)
+
+    app.post('/signup', (req, res) => {
+        hash(req.body.password, 10)
+            .then(password => db.insertOne({
+                email: req.body.email,
+                login: req.body.login,
+                password
+            }))
+            .then(({ ops: [user] }) => {
+                req.user = user
+                req.user.provider = 'signup'
+                redirect(req, res)
+            })
+            .catch(e => {
+                console.error(e)
+                res.status(500).end()
+            })
+        
+    })
 
     app.post('/ssoExchange', passport.authenticate('ssoExchange'), redirect)
 

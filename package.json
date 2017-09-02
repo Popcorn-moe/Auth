@@ -21,11 +21,13 @@
     "babel-preset-env": "^1.6.0"
   },
   "dependencies": {
+    "bcrypt": "^1.0.3",
     "body-parser": "^1.17.2",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.4",
     "express": "^4.15.4",
     "jsonwebtoken": "^7.4.3",
+    "mongodb": "^2.2.31",
     "passport": "^0.4.0",
     "passport-discord": "^0.1.2",
     "passport-local": "^1.0.0",
