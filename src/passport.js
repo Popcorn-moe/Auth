@@ -29,6 +29,8 @@ export default function(app, db) {
             .then(password => db.insertOne({
                 email: req.body.email,
                 login: req.body.login,
+                group: 0,
+                newsletter: req.body.newsletter || false,
                 password
             }))
             .then(({ ops: [user] }) => {
@@ -40,7 +42,6 @@ export default function(app, db) {
                 console.error(e)
                 res.status(500).end()
             })
-        
     })
 
     app.post('/ssoExchange', passport.authenticate('ssoExchange'), redirect)
