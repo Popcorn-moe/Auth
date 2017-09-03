@@ -11,7 +11,7 @@ const app = express()
 app.use(cookieParser())
 app.use(bodyParser.json())
 app.use(cors({
-  origin: ['http://localhost:8080', 'http://localhost:8000'],
+	origin: ['http://localhost:8080', 'http://localhost:8000', 'https://popcorn.moe'],
   credentials: true
 }))
 
@@ -19,6 +19,5 @@ MongoClient.connect(url).then(db =>{
   console.log('Connected on mongodb')
   passport(app, db.collection('users'))
 })
-
 
 app.listen(3031, () => console.log('Listening on 3031'))

@@ -102,5 +102,5 @@ function redirect(req, res) {
 }
 
 function getCallback(name) {
-    return `http://localhost:3031/login/${name}/callback`
+    return `${process.env.AUTH_URL || 'http://localhost:3031'}/login/${name}/callback`
 }
