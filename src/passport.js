@@ -29,7 +29,7 @@ export default function(app, db) {
             .then(password => db.insertOne({
                 email: req.body.email,
                 login: req.body.login,
-                group: 0,
+                group: 'VIEWER',
                 newsletter: req.body.newsletter || false,
                 password
             }))
