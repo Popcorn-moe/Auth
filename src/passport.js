@@ -22,7 +22,16 @@ export default function(app, db) {
 
     passport.serializeUser((user, cb) => cb(null, user))
 
-    app.post('/login', passport.authenticate('local'), redirect)
+    app.post('/login', (req, res, next) => passport.authenticate('local' , (err, user, info) => {
+        if (err) next(err)
+        if (!user) { 
+            res.status(401);
+            res.send(info);
+            return;
+        }
+        req.user = user
+        next()
+    })(req, res, next), redirect)
 
     app.post('/signup', (req, res) => {
         hash(req.body.password, 10)

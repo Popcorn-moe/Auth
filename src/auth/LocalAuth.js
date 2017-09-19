@@ -24,9 +24,15 @@ export default class LocalAuth extends Strategy {
                 if (user && user.password) {
                     user.provider = 'local'
                     return compare(password, user.password)
-                            .then(res => res ? user : false)
+                            .then(res => res ? user : [false, {
+                                error: true,
+                                text: 'Invalid user or password'
+                            }])
                 } else
-                    return false
+                    return [false, {
+                        error: true,
+                        text: 'Invalid user or password'
+                    }]
             })
         }))
     }
