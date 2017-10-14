@@ -40,7 +40,6 @@ export default function(app, db) {
                 login: req.body.login,
                 group: 'VIEWER',
                 newsletter: req.body.newsletter || false,
-                playlists: [{name:"History", type:"HISTORY", medias:[]}, {name:"Follows", type:"FOLLOWS", medias:[]}],
                 password
             }))
             .then(({ ops: [user] }) => {
