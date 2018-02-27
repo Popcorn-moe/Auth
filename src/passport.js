@@ -131,7 +131,6 @@ export default function(app, db) {
 		"/login/:provider",
 		validProvider(PROVIDERS),
 		withReq(({ params: { provider }, query: { callback } }, res) => {
-			console.log("Callback", callback);
 			res.cookie("callback", callback, { httpOnly: true });
 			return passport.authenticate(provider);
 		})
@@ -188,7 +187,10 @@ function redirect(req, res) {
 	} else {
 		res.clearCookie("callback");
 		ssoExchange.createToken(req.user).then(token => {
-			res.cookie("ssoExchange", token, { maxAge: 60 * 1000 });
+			res.cookie("ssoExchange", token, {
+				maxAge: 60 * 1000,
+				domain: COOKIE_DOMAIN
+			});
 			res.redirect(req.cookies.callback);
 		});
 	}
