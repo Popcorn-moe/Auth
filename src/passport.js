@@ -1,8 +1,15 @@
+import session from "express-session";
 import passport from "passport";
 import jwt from "jsonwebtoken";
 import uuid from "uuid/v4";
 import { hash } from "bcrypt";
-import { SSOExchangeAuth, LocalAuth, KitsuAuth, DiscordAuth } from "./auth";
+import {
+	SSOExchangeAuth,
+	LocalAuth,
+	KitsuAuth,
+	TwitterAuth,
+	DiscordAuth
+} from "./auth";
 
 const SPECIAL_PROVIDERS = ["local", "ssoExchange", "signup"];
 const ssoExchange = new SSOExchangeAuth();
@@ -10,21 +17,38 @@ const ssoExchange = new SSOExchangeAuth();
 const {
 	DISCORD_CLIENT_ID,
 	DISCORD_CLIENT_SECRET,
+	TWITTER_CLIENT_ID,
+	TWITTER_CLIENT_SECRET,
 	COOKIE_DOMAIN,
 	AUTH_URL
 } = process.env;
 
-function validProvider(req, res, next) {
-	const { provider } = req.params;
-	if (PROVIDERS.includes(provider)) {
-		next();
-	} else {
-		res.status(400).send("Provider not found");
-	}
+function validProvider(providers) {
+	return (req, res, next) => {
+		const { provider } = req.params;
+		if (providers.includes(provider)) {
+			next();
+		} else {
+			res.status(400).send("Provider not found");
+		}
+	};
+}
+
+function withReq(fn) {
+	return (req, res, next) => fn(req, res, next)(req, res, next);
 }
 
 export default function(app, db) {
+	app.use(
+		session({
+			secret: "keyboard cat",
+			resave: false,
+			saveUninitialized: true
+			//cookie: { secure: true }
+		})
+	);
 	app.use(passport.initialize());
+	app.use(passport.session());
 
 	passport.use(ssoExchange);
 	passport.use(new LocalAuth(db));
@@ -35,6 +59,15 @@ export default function(app, db) {
 				DISCORD_CLIENT_ID,
 				DISCORD_CLIENT_SECRET,
 				getCallback("discord")
+			)
+		);
+	if (TWITTER_CLIENT_ID)
+		passport.use(
+			new TwitterAuth(
+				db,
+				TWITTER_CLIENT_ID,
+				TWITTER_CLIENT_SECRET,
+				getCallback("twitter")
 			)
 		);
 	passport.use(
@@ -55,8 +88,8 @@ export default function(app, db) {
 
 	app.post(
 		"/login",
-		(req, res, next) =>
-			passport.authenticate("local", (err, user, info) => {
+		withReq((req, res, next) =>
+			passport.authenticate("local", { session: false }, (err, user, info) => {
 				if (err) return next(err);
 				if (!user) {
 					res.status(401);
@@ -65,7 +98,8 @@ export default function(app, db) {
 				}
 				req.user = user;
 				next();
-			})(req, res, next),
+			})
+		),
 		redirect
 	);
 
@@ -93,16 +127,22 @@ export default function(app, db) {
 
 	app.post("/ssoExchange", passport.authenticate("ssoExchange"), redirect);
 
-	app.get("/login/:provider", validProvider, (req, res, next) => {
-		res.cookie("callback", req.query.callback, { httpOnly: true });
-		passport.authenticate(provider)(req, res, next);
-	});
+	app.get(
+		"/login/:provider",
+		validProvider(PROVIDERS),
+		withReq(({ params: { provider }, query: { callback } }, res) => {
+			console.log("Callback", callback);
+			res.cookie("callback", callback, { httpOnly: true });
+			return passport.authenticate(provider);
+		})
+	);
 
 	app.get(
 		"/login/:provider/callback",
-		validProvider,
-		(req, res, next) =>
-			passport.authenticate(req.params.provider)(req, res, next),
+		validProvider(PROVIDERS),
+		withReq(({ params: { provider } }) =>
+			passport.authenticate(provider, { session: false })
+		),
 		redirect
 	);
 }
@@ -131,6 +171,7 @@ function redirect(req, res) {
 		);
 
 		if (req.cookies.ssoExchange) res.clearCookie("ssoExchange");
+		req.session.destroy();
 
 		res.json({
 			csrf: jwt.sign(
@@ -147,7 +188,7 @@ function redirect(req, res) {
 	} else {
 		res.clearCookie("callback");
 		ssoExchange.createToken(req.user).then(token => {
-			res.cookie("ssoExchange", token);
+			res.cookie("ssoExchange", token, { maxAge: 60 * 1000 });
 			res.redirect(req.cookies.callback);
 		});
 	}
