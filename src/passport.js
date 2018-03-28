@@ -2,6 +2,7 @@ import session from "express-session";
 import passport from "passport";
 import jwt from "jsonwebtoken";
 import uuid from "uuid/v4";
+import md5 from "md5";
 import { hash } from "bcrypt";
 import {
 	SSOExchangeAuth,
@@ -172,7 +173,25 @@ function redirect(req, res) {
 		if (req.cookies.ssoExchange) res.clearCookie("ssoExchange");
 		req.session.destroy();
 
+		const {
+			_id,
+			email,
+			login,
+			group,
+			avatar = `https://www.gravatar.com/avatar/${md5(
+				email.toLowerCase().trim()
+			)}?d=identicon`,
+			provider,
+			fromProvider = provider
+		} = req.user;
+
 		res.json({
+			id: _id,
+			email,
+			login,
+			group,
+			avatar,
+			provider: fromProvider,
 			csrf: jwt.sign(
 				{
 					id

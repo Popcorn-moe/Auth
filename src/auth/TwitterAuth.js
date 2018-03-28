@@ -36,7 +36,10 @@ export default class TwitterAuth extends Strategy {
 						)
 						.then(({ value, lastErrorObject: { upserted } }) => {
 							insert._id = upserted;
-							return upserted ? insert : value;
+							return {
+								...(upserted ? insert : value),
+								provider: "twitter"
+							};
 						});
 				}
 			)

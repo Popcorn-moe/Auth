@@ -10,38 +10,32 @@ export default class LocalAuth extends Strategy {
 			},
 			callbackify((username, password) => {
 				return db
-					.find(
-						{
-							$or: [
-								{
-									email: username
-								},
-								{
-									login: username
-								}
-							]
-						},
-						{
-							password: true
-						}
-					)
+					.find({
+						$or: [
+							{
+								email: username
+							},
+							{
+								login: username
+							}
+						]
+					})
 					.limit(1)
 					.toArray()
 					.then(([user]) => {
 						if (user && user.password) {
 							user.provider = "local";
-							return compare(password, user.password).then(
-								res =>
-									res
-										? user
-										: [
-												false,
-												{
-													error: true,
-													text: "Invalid user or password"
-												}
-											]
-							);
+							return compare(password, user.password).then(res => {
+								if (res) return user;
+								else
+									return [
+										false,
+										{
+											error: true,
+											text: "Invalid user or password"
+										}
+									];
+							});
 						} else
 							return [
 								false,

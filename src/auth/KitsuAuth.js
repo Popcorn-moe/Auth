@@ -30,7 +30,7 @@ export default class KitsuAuth extends Strategy {
 				else
 					try {
 						const { id, username, email } = JSON.parse(body);
-						done(null, { id, username, email, provider: "discord" });
+						done(null, { id, username, email, provider: this.name });
 					} catch (e) {
 						done(e);
 					}

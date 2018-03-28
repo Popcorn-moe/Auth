@@ -18,6 +18,11 @@ export default class SSOExchangeAuth extends Strategy {
 			else
 				this.success({
 					_id: user._id,
+					email: user.email,
+					login: user.login,
+					group: user.group,
+					avatar: user.avatar,
+					fromProvider: user.provider,
 					provider: this.name
 				});
 		});
@@ -27,7 +32,12 @@ export default class SSOExchangeAuth extends Strategy {
 		return new Promise((resolve, reject) =>
 			jwt.sign(
 				{
-					_id: user._id
+					_id: user._id,
+					email: user.email,
+					login: user.login,
+					group: user.group,
+					avatar: user.avatar,
+					provider: user.provider
 				},
 				secret,
 				{
