@@ -30,7 +30,12 @@ export default class TwitterAuth extends Strategy {
 							{ email },
 							{
 								$setOnInsert: insert,
-								$set: { twitterId: id }
+								$set: {
+									twitter: {
+										id,
+										username
+									}
+								}
 							},
 							{ upsert: true }
 						)

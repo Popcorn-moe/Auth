@@ -10,31 +10,39 @@ export default class DiscordAuth extends Strategy {
 				callbackURL,
 				scope: ["identify", "email"]
 			},
-			callbackify((accessToken, refreshToken, { id, email, username }) => {
-				const insert = {
-					email,
-					login: username,
-					group: "VIEWER",
-					newsletter: false,
-					password: null
-				};
-				return db
-					.findOneAndUpdate(
-						{ email },
-						{
-							$setOnInsert: insert,
-							$set: { discordId: id }
-						},
-						{ upsert: true }
-					)
-					.then(({ value, lastErrorObject: { upserted } }) => {
-						insert._id = upserted;
-						return {
-							...(upserted ? insert : value),
-							provider: "discord"
-						};
-					});
-			})
+			callbackify(
+				(accessToken, refreshToken, { id, email, username, discriminator }) => {
+					const insert = {
+						email,
+						login: username,
+						group: "VIEWER",
+						newsletter: false,
+						password: null
+					};
+					return db
+						.findOneAndUpdate(
+							{ email },
+							{
+								$setOnInsert: insert,
+								$set: {
+									discord: {
+										id,
+										username,
+										discriminator
+									}
+								}
+							},
+							{ upsert: true }
+						)
+						.then(({ value, lastErrorObject: { upserted } }) => {
+							insert._id = upserted;
+							return {
+								...(upserted ? insert : value),
+								provider: "discord"
+							};
+						});
+				}
+			)
 		);
 	}
 }
