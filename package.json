@@ -1,7 +1,7 @@
 {
-  "name": "popcorn.moe-auth",
+  "name": "@popcorn.moe/auth",
   "version": "1.0.0",
-  "description": "",
+  "description": "Popcorn.moe Auth Service",
   "main": "index.js",
   "scripts": {
     "start": "babel-node index.js",
@@ -16,14 +16,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Popcorn-moe/Popcorn.moe-Auth.git"
+    "url": "git+https://github.com/Popcorn-moe/Auth.git"
   },
   "author": "Popcorn-moe",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/Popcorn-moe/Popcorn.moe-Auth/issues"
+    "url": "https://github.com/Popcorn-moe/Auth/issues"
   },
-  "homepage": "https://github.com/Popcorn-moe/Popcorn.moe-Auth#readme",
+  "homepage": "https://github.com/Popcorn-moe/Auth#readme",
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
