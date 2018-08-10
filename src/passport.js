@@ -12,6 +12,11 @@ import {
 	DiscordAuth
 } from "./auth";
 
+const {
+	COOKIE_SECRET = "keyboard cat",
+	COOKIE_SECURE = "false" //set to true for https
+} = process.env;
+
 const SPECIAL_PROVIDERS = ["local", "ssoExchange", "signup"];
 const ssoExchange = new SSOExchangeAuth();
 
@@ -42,10 +47,10 @@ function withReq(fn) {
 export default function(app, db) {
 	app.use(
 		session({
-			secret: "keyboard cat",
+			secret: COOKIE_SECRET,
 			resave: false,
-			saveUninitialized: true
-			//cookie: { secure: true }
+			saveUninitialized: true,
+			cookie: { secure: COOKIE_SECURE === "true" }
 		})
 	);
 	app.use(passport.initialize());

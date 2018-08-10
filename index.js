@@ -5,7 +5,10 @@ import cors from "cors";
 import passport from "./src/passport";
 import { MongoClient } from "mongodb";
 
-const url = "mongodb://localhost:27017/popcornmoe_backend";
+const {
+	MONGO_URL = "mongodb://localhost:27017/popcornmoe_backend"
+} = process.env;
+
 const app = express();
 
 app.use(cookieParser());
@@ -22,7 +25,7 @@ app.use(
 	})
 );
 
-MongoClient.connect(url).then(db => {
+MongoClient.connect(MONGO_URL).then(db => {
 	console.log("Connected on mongodb");
 	passport(app, db.collection("users"));
 });
